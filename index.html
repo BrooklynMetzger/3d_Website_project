@@ -1,34 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Art Gallery</title>
-    <link rel="stylesheet" href="./css/style.css"/>
- <script type="importmap">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Art Gallery</title>
+  <link rel="stylesheet" href="./css/style.css" />
+  <script type="importmap">
   {
     "imports": {
       "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
       "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
     }
   }
-</script> 
-  </head>
-  <body>
-    <div class="background_menu">
-      <div id="menu">
-        <div id="content">
-          <h1>Art Gallery</h1>
-          <div>
-            <p>You Know what this is dummy. Yep</p>
-          </div>
+</script>
+</head>
 
-          <div id="play_button">
-            <p>Press Enter!!!</p>
-          </div>
+<body>
+  <div id="fade-overlay"></div>
+  <div id="info-card">
+    <h1 id="info-title"></h1>
+    <h2 id="info-desc"></h2>
+  </div>
+  <div class="background_menu">
+    <div id="menu">
+      <div id="content">
+        <h1>Mini Art Gallery</h1>
+        <div>
+          <p>This is a fun small relaxing project where you can look at nice art. Relax and enjoy.</p>
+        </div>
+        <div id="play_button">Click to Enter</div>
+        <div id="button-grid">
+          <button id="music_toggle">🔇 Music: Off</button>
+          <button id="info_toggle">Controls?</button>
+        </div>
+        <audio id="bg-music" loop>
+          <source src="./Music/年を刻んで.mp3" type="audio/mpeg">
+        </audio>
+        <div id="controls-modal">
+          <h2>How to Play</h2>
+          <p><b>W, A, S, D</b> - Move</p>
+          <p><b>Mouse</b> - Look around</p>
+          <p><b>ESC</b> - Open this menu</p>
+          <button id="close_controls">Got it!</button>
         </div>
       </div>
-    </div> 
+    </div>
     <script type="module" src="./js/main.js"></script>
-  </body>
+    <!--Social buttons from HighFlyer910 at https://codepen.io/HighFlyer910 -->
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <nav class="social">
+      <ul>
+        <li><a href="https://www.instagram.com/metzgerbrooklyn/">Instagram <i class="fa fa-instagram"></i></a></li>
+        <li><a href="https://github.com/BrooklynMetzger">Github <i class="fa fa-github"></i></a></li>
+        <li><a href="https://www.linkedin.com/in/brooklyn-metzger">Linkedin <i class="fa fa-linkedin"></i></a></li>
+      </ul>
+    </nav>
+</body>
+
 </html>

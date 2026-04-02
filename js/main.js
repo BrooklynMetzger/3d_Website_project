@@ -1,107 +1,99 @@
 import * as THREE from "three";
-import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-//import { array } from "three/src/nodes/core/ArrayNode.js";
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-// 1. Import your custom collision logic!
 import { collisionBoxes, checkCollision } from './collisions.js';
-import { buildWorld, interactablePaintings } from './world.js';
+import { buildWorld, theCube } from './world.js';
 import { setupControls, move } from './controls.js';
 import { setupScene } from './setupScene.js';
+import { interactableObjects } from "./artworks.js";
 
-
-// Set up the world base
+// Set up the world 
 const { scene, camera, renderer } = setupScene();
-
 const controls = setupControls(camera);
-
 buildWorld(scene, collisionBoxes);
 
-const loader = new GLTFLoader();
-loader.load(
-    // resource URL
-    './Assets/Models/painted_wooden_stool_4k.gltf',
-    // called when the resource is loaded
-    function ( gltf ) {
-        scene.add( gltf.scene );
-        // Loop through the stool and make it artificially brighter
-        gltf.scene.traverse((child) => {
-            if (child.isMesh) {
-                // Adds a soft white/grey glow from inside the model itself
-                child.material.emissive = new THREE.Color(0x444444); 
-            }
-        });
-       
-        // Optional: Adjust position, scale, etc.
-        gltf.scene.position.set(0, -3.1, 0);
-        gltf.scene.scale.set(5.0, 5.0, 5.0);
-
-        gltf.scene.updateMatrixWorld(true); 
-
-        // 2. Draw a box around the entire 3D model
-        const modelBox = new THREE.Box3().setFromObject(gltf.scene);
-
-        // 3. Add the box to our universal collision list!
-        collisionBoxes.push(modelBox);
-    },
-    // called while loading is progressing
-    function ( xhr ) {
-        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-    },
-    // called when loading has errors
-    function ( error ) {
-        console.error( 'An error happened', error );
-    }
-);
-
-let cube = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), new THREE.MeshBasicMaterial({ color: "blue" }));
-cube.position.set(0, 1.5, 0);
-scene.add(cube);
-
-// 6. Run the Game Loop!
-const speed = 0.09; 
+// Movement speed
+const speed = 0.09;
+let bobTimer = 0;
+const bobAmount = 0.1;   // Amplitude: How high/low the head bobs
+const defaultCameraY = camera.position.y
 
 
-// --- Raycaster Setup ---
+// Get the UI elements from the HTML
+const infoCard = document.getElementById('info-card');
+const infoTitle = document.getElementById('info-title');
+const infoDesc = document.getElementById('info-desc');
+
+// Raycaster setup 
 const raycaster = new THREE.Raycaster();
-const centerScreen = new THREE.Vector2(0, 0); // (0,0) is exactly the middle of the screen in Three.js coordinates
+const centerScreen = new THREE.Vector2(0, 0);
 
+// Start animation
 function animate() {
     requestAnimationFrame(animate);
 
     if (controls.isLocked === true) {
         const oldPosition = camera.position.clone();
-        
+
+        const isMoving = move.forward || move.backward || move.left || move.right;
+
+        // Movement logic     
         if (move.forward) controls.moveForward(speed);
         if (move.backward) controls.moveForward(-speed);
         if (move.right) controls.moveRight(speed);
         if (move.left) controls.moveRight(-speed);
-
+        // Collision logic
         if (checkCollision(camera)) {
             camera.position.copy(oldPosition);
         }
 
-        // --- RAYCASTING LOGIC ---
-        
-        // 1. Hide ALL placards to start the frame
-        interactablePaintings.forEach(p => {
-            if (p.userData.placard) p.userData.placard.visible = false;
-        });
-
-        // 2. Point the laser
-        raycaster.setFromCamera(centerScreen, camera);
-        const intersects = raycaster.intersectObjects(interactablePaintings);
-
-        // 3. If we hit something and are close enough, make ONLY that 3D placard visible!
-        if (intersects.length > 0 && intersects[0].distance < 40) {
-            const hitPainting = intersects[0].object;
-            if (hitPainting.userData.placard) {
-                hitPainting.userData.placard.visible = true;
-            }
+        // Head bobbing logic
+        if (isMoving) {
+            bobTimer += 0.15;
+            // Math.sin creates the up-and-down oscillation
+            camera.position.y = defaultCameraY + Math.sin(bobTimer) * bobAmount;
+        } else {
+            // Smoothly return to default height when not moving
+            bobTimer = 0;
+            camera.position.y += (defaultCameraY - camera.position.y) * 0.1;
         }
+
+        // Raycasting logic
+        let lookingAtPainting = false;
+        raycaster.setFromCamera(centerScreen, camera);
+        const intersects = raycaster.intersectObjects(interactableObjects);
+        // If painting is hit show UI data
+        if (intersects.length > 0 && intersects[0].distance < 7) {
+            const hitPainting = intersects[0].object;
+            // Update the HTML 
+            infoTitle.innerText = hitPainting.userData.title;
+            infoDesc.innerText = hitPainting.userData.description;
+            // Make the UI card visible
+            infoCard.style.display = 'block';
+            lookingAtPainting = true;
+        }
+        // ELse not hit hide UI card
+        if (!lookingAtPainting) {
+            infoCard.style.display = 'none';
+        }
+    } else {
+        const panSpeed = 0.0003; // How fast the camera pans
+        const panWidth = 1;    // How far 
+
+        const targetRotationY = Math.sin(Date.now() * panSpeed) * panWidth;
+
+        // transition the Y-axis to the pan
+        camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, targetRotationY, 0.02);
+        // level the head on the X and Z axes
+        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, 0, 0.02);
+        camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, 0, 0.02);
+        //Settle the camera height back to default
+        camera.position.y = THREE.MathUtils.lerp(camera.position.y, defaultCameraY, 0.05);
     }
-    
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
+
+    // Animate the cube
+    if (theCube) {
+        theCube.rotation.x += 0.01;
+        theCube.rotation.y += 0.01;
+    }
 
     renderer.render(scene, camera);
 }
