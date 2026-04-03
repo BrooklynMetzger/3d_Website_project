@@ -68,7 +68,7 @@ export function buildWorld(scene, collisionBoxes) {
     addMetPainting(scene, 436896, new THREE.Vector3(19.9, 3, 3), 4, 6, false, true);
     addMetPainting(scene, 437283, new THREE.Vector3(19.9, 1.5, 10), 6, 4, false, true);
     addMetPainting(scene, 437879, new THREE.Vector3(19.9, 2.2, 18), 5, 5, false, true);
-    addMetPainting(scene, 435868, new THREE.Vector3(19.9, 5, -4), 4, 4, false, true);
+    addMetPainting(scene, 435868, new THREE.Vector3(19.9, 6, -4), 4, 4, false, true);
 
     /* Van gogh wall front from camera */
     addMetPainting(scene, 436532, new THREE.Vector3(0, 2, -19.99), 5, 5);
@@ -93,6 +93,27 @@ export function buildWorld(scene, collisionBoxes) {
     addMetPainting(scene, 55997, new THREE.Vector3(-19.9, 4, 9), 5, 4, true, false);
 
     addMetPainting(scene, 36591, new THREE.Vector3(-19.9, 2.5, -14), 4, 5, true, false);
+/*
+    // test frame
+    const loader2 = new THREE.TextureLoader();
+    // 2. Load the texture
+    const texture = loader2.load('./Textures/frame.png');
+     const material = new THREE.MeshBasicMaterial({ 
+        map: texture, 
+        transparent: true,
+        side: THREE.DoubleSide
+    });
+    const frameG = new THREE.PlaneGeometry(6,6.5);
+    const frame = new THREE.Mesh(frameG, material);
+    frame.position.set(0, 1.8, -19.95);
+
+    const frameG2 = new THREE.PlaneGeometry(6,5.5);
+    const frame2 = new THREE.Mesh(frameG2, material);
+    frame2.position.set(14, 1.5, -19.95);
+
+    scene.add(frame, frame2);*/
+// 3. Apply it to a material
+
     // Model Loading
     const loader = new GLTFLoader();
     /* Sofas */

@@ -56,7 +56,6 @@ export function setupControls(camera) {
     playButton.addEventListener("click", () => {
         controls.lock();             // Lock the mouse
         menu.style.display = 'none'; // Hide the menu
-        so
     });
 
     controls.addEventListener('unlock', () => {

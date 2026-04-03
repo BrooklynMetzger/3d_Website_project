@@ -60,6 +60,33 @@ export async function addMetPainting(scene, objectID, position, width, height, r
             interactableObjects.push(painting);
         });
 
+        /*Adds cute little frames to each painting*/
+        const frameTexture = textureLoader.load('./Textures/frame.png');
+        const frameMaterial = new THREE.MeshBasicMaterial({
+            map: frameTexture,
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+        const frameGeo = new THREE.PlaneGeometry(width + 1, height + 1.5);
+        const frame = new THREE.Mesh(frameGeo, frameMaterial);
+        // Simple math to convert frames to right size and positon
+        // Based on if painting is rotated to determine which wall painting is located
+        let frameZ = position.z + 0.05;
+        let frameX = position.x;
+        if (rotateRight) {
+            frame.rotation.y = -Math.PI / 2;
+            frameX = position.x - 0.05;
+        }
+        if (rotateLeft) {
+            frame.rotation.y = Math.PI / 2;
+            frameX = position.x + 0.05;
+        }
+        if (rotateFlip) {
+            frame.rotation.y = Math.PI;
+            frameZ = position.z - 0.05;
+        }
+        frame.position.set(frameX, position.y - .2, frameZ);
+        scene.add(frame);
     } catch (error) {
         console.error(`Error loading Met Object ${objectID}:`, error);
     }
